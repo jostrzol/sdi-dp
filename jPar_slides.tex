@@ -12,6 +12,8 @@
 \usepackage{slashbox}
 \usepackage{url}
 \usepackage{listings}
+\usepackage{polski}
+\usepackage[utf8]{inputenc}
 \newcommand{\IR}{\bbold R}
 \def\Rset{\mathbb{R}}
 \def\Zset{\mathbb{Z}}
@@ -21,35 +23,24 @@
 \newcommand{\und}[1]{\underline{#1}}
 
 \hypersetup{
-   pdftitle={Piotr Trojanek, MMAR 2007},
-   pdfauthor={Piotr Trojanek, IAiIS},
+   pdftitle={Oprogramowanie do gier opartych o planszę w postaci szachownicy},
+   pdfauthor={Jakub Ostrzołek},
    pdfborder={0 0 0}
 }
 
-\title[jPar \insertframenumber/\inserttotalframenumber]{jPar -- a simple, free and lightweight tool for parallelizing Matlab
-calculations on multicores and in clusters}
-\author[Andrzej Karbowski]{\textbf{Andrzej Karbowski\inst{1,2}, Marek Majchrowski\inst{1},\\
-Piotr Trojanek\inst{1}, Tomasz Pokorski\inst{1},
-Dawid Za{\l}uga\inst{1} }}
-\institute{$^1$Institute of Control and Computation Engineering\\%
-Warsaw University of Technology
-\and
-$^2$NASK (Research and Academic Computer Network),\\
-Warsaw, Poland}
-
-
-%\date{Siedlce, \today}
-\date{\tiny{\emph{FedCSIS 2015 - Federated Conference on Computer Science and Information Systems,\\
-{\L}\'{o}d\'{z}, Poland, 13 - 16 September, 2015
-}}}
+\title[jPar \insertframenumber/\inserttotalframenumber]{Oprogramowanie do gier opartych o planszę w postaci szachownicy}
+\author[Jakub Ostrzołek]{\textbf{Jakub Ostrzołek \\%
+\footnotesize Promotor: dr inż. Patryk Chaber}}
+\institute{Instytut Automatyki i Technik Informacyjnych\\%
+Politechnika Warszawska}
 
 \begin{document}
 
 \frame{\titlepage}
 
-\frame{\tableofcontents\frametitle{The contents}}
+\frame{\tableofcontents\frametitle{Plan prezentacji}}
 
-\section{Introduction}
+\section{Cel pracy}
 \begin{frame}
 \frametitle{Drawbacks of Matlab Parallel  Computing
 Toolbox and Distributed Computing Server}
@@ -116,7 +107,7 @@ of parallelized functions
 \end{frame}
 
 
-\section{Operation details}
+\section{Tematyka pracy}
 
 \begin{frame}
 \frametitle{Distributing the work}
@@ -140,7 +131,7 @@ Steps:
 \end{enumerate}
 \end{frame}
 
-\section{Implementation details}
+\section{Istniejące rozwiązania}
 
 \defverbatim\testcode{%
 \begin{verbatim}
@@ -221,7 +212,7 @@ public class JMStruct
 }
 \end{frame}
 \begin{frame}[fragile]
-\section{Installation and using jPar}
+\section{Zadania pracy}
 \frametitle{The installation and starting jPar}
 It is very simple:
 \begin{enumerate}
@@ -259,7 +250,7 @@ To see free solvers one may use the command:\\
  \textcolor{blue}   {\tt >> jpar\_client('hosts');}
 
 \end{frame}
-\section{Case-study results}
+\section{Dotychczasowe wyniki pracy}
 
 \begin{frame}
 \frametitle{General separable optimization problem}
@@ -373,7 +364,7 @@ with the line
 \includegraphics[height=6.5cm]{fig5}
 \end{frame}
 
-\section{Conclusions}
+\section{Plan przyszłych prac}
 
 \begin{frame}[allowframebreaks,fragile]
 \frametitle{Conclusions}
