@@ -3,6 +3,7 @@
 \usetheme{Warsaw}
 \usecolortheme{seahorse}
 \setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{bibliography item}{\insertbiblabel}
 \setbeamercolor{background canvas}{bg=}
 \usepackage{beamerthemesplit}
 \usepackage{pgf}
@@ -14,6 +15,8 @@
 \usepackage{listings}
 \usepackage{polski}
 \usepackage[utf8]{inputenc}
+\usepackage[absolute,overlay]{textpos}
+\usepackage{graphicx}
 \newcommand{\IR}{\bbold R}
 \def\Rset{\mathbb{R}}
 \def\Zset{\mathbb{Z}}
@@ -35,10 +38,10 @@
 
 \title[Silnik gier opartych o szachownicę \insertframenumber/\inserttotalframenumber]{
    Projekt i wykonanie oprogramowania do gier planszowych opartych
-   o planszę postaci szachownicy – podejście w oparciu o dedykowany
+   o planszę postaci szachownicy -- podejście w oparciu o dedykowany
    język dziedzinowy.}
-\author[Jakub Ostrzołek]{\textbf{Jakub Ostrzołek \\%
-\footnotesize Promotor: dr inż. Patryk Chaber}}
+\author[Jakub Ostrzołek]{\textbf{Jakub Ostrzołek} \\%
+\footnotesize Promotor: dr inż. Patryk Chaber}
 \institute{Instytut Automatyki i Technik Informacyjnych\\%
 Politechnika Warszawska}
 
@@ -50,286 +53,215 @@ Politechnika Warszawska}
 
 \section{Cel pracy}
 \begin{frame}
-   \frametitle{Cel pracy}
-   2 główne cele pracy:
-   \begin{enumerate}
-      \item opracowanie formatu pliku do opisywania zasad gier planszowych opartych o szachownicę
-      \item implementacja interpretera ww. formatu (silnika gry)
-   \end{enumerate}
+	\frametitle{Cel pracy}
+	3 główne cele pracy:
+	\begin{enumerate}
+		\item opracowanie języka DSL\footnotemark do opisywania zasad gier planszowych opartych o szachownicę
+		\item implementacja silnika gry
+		      \begin{itemize}
+			      \item potrafi interpretować zasady w ww. języku
+			      \item pozwala na rozgrywkę dwóch osób
+		      \end{itemize}
+		\item stworzenie interfejsu użytkownika
+	\end{enumerate}
+	\footnotetext{DSL (ang. Domain Specific Language) - język dziedzinowy}
 \end{frame}
 
 \section{Tematyka pracy}
 
 \begin{frame}
-   \frametitle{}
-   \begin{itemize}
-      \item plansza 
-   \end{itemize}
+	\frametitle{Język - wstępne założenia}
+	\begin{itemize}
+		\item Składnia języka jest kluczowym elementem rozwiązania
+		\item Wstępne założenia:
+		      \begin{itemize}
+			      \item pozwala wyrazić zasady min. 3 rodzajów  gier
+			      \item możliwie nieskomplikowany
+			      \item ograniczony do 2-osobowych gier opartych o szachownicę
+			      \item zwięzły
+			      \item wymaga rozumienia podstawowych zasad programowania
+		      \end{itemize}
+	\end{itemize}
 \end{frame}
 
 \begin{frame}
-   \frametitle{Format zasad - wstępne założenia}
-   \begin{itemize}
-      \item Format pliku zasad jest kluczowym elementem rozwiązania
-      \item Wstępne założenia:
-            \begin{itemize}
-               \item pozwala wyrazić zasady min. rodzajów 3 gier
-               \item możliwie nieskomplikowany
-               \item zwięzły
-               \item wymaga rozumienia podstawowych zasad programowania
-            \end{itemize}
-   \end{itemize}
+	\frametitle{Język - elementy}
+	Elementy języka:
+	\begin{itemize}
+		\item definicja planszy (rozmiar)
+		\item typy figur
+		      \begin{itemize}
+			      \item generatory ruchu (funkcje typu: {\tt pozycja $\rightarrow$ []pozycja})
+			      \item akcje (funkcje typu: {\tt pozycja $\rightarrow$ void})
+		      \end{itemize}
+		\item walidatory stanu gry po ruchu (funkcje typu: {\tt ruch $\rightarrow$ bool})
+		\item stan początkowy -- ustawienie figur
+		\item predykat zakończenia gry + wybór zwycięzcy
+		\item funkcja przebiegu rundy
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[allowframebreaks]
+	\frametitle{Język - podejścia}
+	Możliwe podejścia:
+	\begin{enumerate}
+		\item Stworzenie własnego języka DSL
+		      \begin{itemize}
+			      \pro całkowita możliwość dostosowania języka do potrzeb
+			      \con tworzenie parsera bardzo pracochłonne
+			      \con brak dodatkowych narzędzi (formatowanie, detekcja błędów składniowych, itp.)
+			      \con brak znajomości języka u użytkowników
+		      \end{itemize}
+		\item Stworzenie DSL zanurzonego w języku programowania (np. Kotlin, Haskell, Lua)
+		      \begin{itemize}
+			      \pro dostępne wszystkie możliwości języka nadrzędnego
+			      \pro znajoma składnia dla użytkowników
+			      \con trudny do ograniczenia (problem bezpieczeństwa)
+		      \end{itemize}
+		\framebreak
+		\item Użycie istniejącego formatu (np. {\tt JSON}, {\tt YAML})
+		      \begin{itemize}
+			      \pro formaty popularne i znane przez użytkowników
+			      \pro brak potrzeby tworzenia parsera
+			      \con brak łatwego zapisu wyrażeń, funkcji, pętli, itp.
+			      \con brak możliwości modyfikacji składni języka
+		      \end{itemize}
+	\end{enumerate}
+\end{frame}
+
+\begin{frame}[t]
+	\vspace{0.7cm}
+	\frametitle{Silnik gry}
+	Silnik gry -- maszyna stanów
+	\begin{itemize}
+		\item dla każdego stanu generuje możliwe przejścia
+		\item odseparowany od modułu parsera języka
+		\item dobrze przetestowany
+	\end{itemize}
+	\begin{textblock*}{5cm}(7.5cm,4.5cm)
+		\includegraphics[width=4.5cm]{stany.png}
+	\end{textblock*}
 \end{frame}
 
 \begin{frame}
-   \frametitle{Format zasad - podejścia}
-   Możliwe podejścia:
-   \begin{enumerate}
-      \item Użycie istniejącego formatu (np. {\tt JSON}, {\tt YAML})
-            \begin{itemize}
-               \pro popularne formaty danych
-               \pro brak potrzeby tworzenia parsera
-               \con brak łatwego zapisu wyrażeń, funkcji, pętli, itp.
-            \end{itemize}
-      \item Stworzenie DSL zanurzonego w języku programowania (np. Kotlin, Haskell, Lua)
-            \begin{itemize}
-               \pro dostępne wszystkie możliwości języka nadrzędnego
-               \pro znajoma składnia dla użytkowników
-               \con trudno ograniczalny (problem bezpieczeństwa)
-            \end{itemize}
-      \seti
-   \end{enumerate}
+	\frametitle{Interfejs użytkownika}
+	\begin{itemize}
+		\item Tematycznie najmniej istotna część projektu
+		\item Wersja minimalna
+		      \begin{itemize}
+			      \item interfejs terminalowy
+			      \item rozgrywka na jednym urządzeniu
+		      \end{itemize}
+		\item Wersja docelowa
+		      \begin{itemize}
+			      \item interfejs w przeglądarce internetowej
+			      \item komunikacja z serwerem, na którym działa silnik gry (po protokole HTTP/WS)
+			      \item rozgrywka poprzez 2 urządzenia
+		      \end{itemize}
+	\end{itemize}
 \end{frame}
 
-\begin{frame}
-   \frametitle{Format zasad - podejścia cd.}
-   \begin{enumerate}
-      \conti
-      \item Stworzenie własnego języka DSL od zera
-            \begin{itemize}
-               \pro całkowita możliwość dostosowania języka do potrzeb
-               \con tworzenie parsera bardzo pracochłonne
-               \con brak dodatkowych narzędzi (formatter, linter, itp.)
-               \con brak znajomości języka u użytkowników
-            \end{itemize}
-   \end{enumerate}
-\end{frame}
-
-\begin{frame}
-   \frametitle{Format zasad - wybór podejścia}
-   Wybrałem podejście 1, jednak z niestandardowym formatem - HCL
-   \begin{itemize}
-      \item sprawdzony format używany m. in. w Terraformie
-      \item zawiera elementy standardowych języków programowania:
-      \begin{itemize}
-         \item ewaluacja wyrażeń arytmetycznych i logicznych
-         \item wykonywanie predefiniowanych funkcji
-         \item pętle w postaci list/dictionary comprehensions
-      \end{itemize}
-      \item oficjalny dodatek {\tt userfunc} z funkcjami użytkownika
-   \end{itemize}
-\end{frame}
 
 \section{Istniejące rozwiązania}
 
 \begin{frame}
-   \frametitle{BGD - BoardGameDescription}
-
-   \begin{itemize}
-      \item ogólny język opisu gier planszowych
-   \end{itemize}
-
+	\frametitle{BGD -- BoardGameDescription\cite{BGD}}
+	\begin{itemize}
+		\item Język opisu gier planszowych (szeroki zakres)
+		\item Główny cel: możliwość opisu jak największej liczby gier
+		\item Opis gry za pomocą abstrakcyjnych elementów składowych (np. obiekt, lokacja, widoczność)
+		\item Mało zwięzły (np. implementacja Chińczyka - 400 linii, Manilla - 1100 linii)
+		\item Brak udogodnień znanych z języków programowania (np. pętle, listy)
+	\end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]
-   \section{Zadania pracy}
-   \frametitle{The installation and starting jPar}
-   It is very simple:
-   \begin{enumerate}
-      \item Copy file .java.policy to home directory (in Windows use
-            " Documents and Settings$\setminus$Username" directory) or use "install.bat" (Windows)
-            or "sh ./install.sh" (Unix) on every node, where you want to run
-            jPar client or solver
-      \item Run one instance of paralize server using "jpar\_server.bat" (Windows)
-            or "sh ./jpar\_server.sh" (Unix) on node, where you want to run paralize
-            clients
-      \item Start Matlab sessions in the directory which contains
-            jPar files
-      \item Start solvers from Matlab session in jPar directory
-            using:\\
-
-            \textcolor{blue}{\tt >> jpar\_solver('<hostname>');}
-
-            where {\tt <hostname>} is the name of host where jPar server is running
-            (default to localhost)\\
-   \end{enumerate}
-\end{frame}
 \begin{frame}
-   \frametitle{Starting application}
-   A distributed application is started with:\\
-   \vskip 0.2cm
-   \textcolor{blue}{\tt >> [<output>] =...}\\
-   \hspace{0.5cm} \textcolor{blue}{\tt jpar\_client(<name\_of\_function>, <parameters>)}  \\
-   \vskip 0.2cm
-   After the work is done, the user should kill solvers :\\
-   \vskip 0.2cm
-   \textcolor{blue}   {\tt >> jpar\_client('kill');}\\
-   \vskip 0.2cm
-   To see free solvers one may use the command:\\
-   \vskip 0.2cm
-   \textcolor{blue}   {\tt >> jpar\_client('hosts');}
-
+	\frametitle{RAS -- Rule Automation System\cite{RAS}}
+	\begin{itemize}
+		\item Język opisu gier karcianych
+		\item Główny cel: używanie przez ludzi niezaznajomionych z programowaniem
+		\item Ograniczony tylko do gier karcianych
+		\item Brak udogodnień znanych z języków programowania (np. pętle, listy)
+	\end{itemize}
 \end{frame}
+
+\begin{frame}
+	\frametitle{Metagame\cite{metagame}}
+	\begin{itemize}
+		\item Język opisu gier opartych o szachownicę
+		\item Główny cel: dokładny opis gier na potrzeby zadań SI
+		\item Bardzo rozbudowany, zawiera informacje przydatne do uczenia modelów SI
+		\item Skomplikowany w pisaniu i rozumieniu
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\frametitle{GDL -- Game Description Language\cite{GDL}}
+	\begin{itemize}
+		\item Język opisu gier planszowych (szeroki zakres)
+		\item Główny cel: opis jak największej liczby gier przy pomocy prostej składni
+		\item Podobny do Prologa -- predykaty głównym budulcem zasad
+		\item Bardzo elastyczny, przy tym mało skomplikowany
+		\item Brak wbudowanych konceptów gier planszowych (takich jak: plansza, gracz)
+		\item Brak wbudowanych operacji arytmetycznych
+	\end{itemize}
+\end{frame}
+
+\section{Zadania pracy}
+
+\begin{frame}
+	\frametitle{Język -- wybór podejścia}
+	Istniejący format danych HCL jako baza języka
+	\begin{itemize}
+		\item sprawdzony format używany m. in. w Terraformie\footnotemark
+		\item zawiera elementy standardowych języków programowania:
+		      \begin{itemize}
+			      \item ewaluacja wyrażeń arytmetycznych i logicznych
+			      \item wykonywanie funkcji zdefiniowanych w kontekście ewaluacji
+			      \item pętle w postaci list/dictionary comprehensions
+		      \end{itemize}
+		\item oficjalny dodatek {\tt userfunc} umożliwia definicję funkcji przez użytkownika
+		\item zwięzły i czytelny kod
+	\end{itemize}
+	\footnotetext{Terraform -- narzędzie do zarządzania infrastrukturą komputerową w modelu infrastruktura jako kod (ang. IaC - Infrastructure as Code)}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Język -- przykładowy kod}
+	Istniejący format danych HCL jako baza języka
+	\begin{itemize}
+		\item sprawdzony format używany m. in. w Terraformie\footnotemark
+		\item zawiera elementy standardowych języków programowania:
+		      \begin{itemize}
+			      \item ewaluacja wyrażeń arytmetycznych i logicznych
+			      \item wykonywanie funkcji zdefiniowanych w kontekście ewaluacji
+			      \item pętle w postaci list/dictionary comprehensions
+		      \end{itemize}
+		\item oficjalny dodatek {\tt userfunc} umożliwia definicję funkcji przez użytkownika
+		\item zwięzły i czytelny kod
+	\end{itemize}
+	\footnotetext{Terraform -- narzędzie do zarządzania infrastrukturą komputerową w modelu infrastruktura jako kod (ang. IaC - Infrastructure as Code)}
+\end{frame}
+
 \section{Dotychczasowe wyniki pracy}
-
-\begin{frame}
-   \frametitle{General separable optimization problem}
-   \beq
-   \min_{x \in X} \sum_{i=1}^p f_i(x_i)
-   \label{zad.sep.wj}
-   \eeq
-   \beq
-   \sum_{i=1}^p g_{ji}(x_i) \leq M_j, \;\;\;  j=1,\ldots,m
-   \eeq
-   \beq
-   x =(x_1,x_2,\ldots,x_p) \in
-   X=X_1 \times X_2 \times \ldots X_p
-   \eeq
-   \beq X_i \subseteq \Rset^{n_i},\;\;\, n=\sum_{i=1}^p n_i
-   \label{zad.sep.kon}
-   \eeq
-   where all  functions $f_i$ are strictly convex, $g_{ji}$ - convex.
-\end{frame}
-
-\begin{frame}
-   \frametitle{Dual (price) method}
-   Decomposition of the Lagrangian:
-   \[
-      L_D(\lambda) = \min_{x \in X} \left[ L(x,\lambda) =
-         \sum_{i=1}^p f_i(x_i) + \sum_{j=1}^m \lambda_j \cdot \left( \sum_{i=1}^p g_{ji}(x_i) -
-         M_j \right) \right]
-      =
-   \]
-   \[
-      = \min_{x_i \in
-         X_i , i=1,\ldots,p} \left[ \sum_{i=1}^p \left(f_i(x_i) +
-         \sum_{j=1}^m \lambda_j  g_{ji}(x_i) \right) - \sum_{j=1}^m \lambda_j
-         M_j \right] =
-   \]
-   \beq
-   =\sum_{i=1}^p \min_{x_i \in X_i} \left( f_i(x_i) +
-   \sum_{j=1}^m \lambda_j  g_{ji}(x_i) \right) - \sum_{j=1}^m \lambda_j
-   M_j
-   \label{f.dualna}
-   \eeq
-\end{frame}
-
-\begin{frame}
-   \frametitle{Master-slave approach}
-   \begin{enumerate}
-      \item $p$ Local problems; the $i$-th:
-            \beq
-            \min_{x_i \in X_i} \left[ L_i(x_i,\lambda)=f_i(x_i) + \sum_{j=1}^m \lambda_j  g_{ji}(x_i)\right]
-            \eeq
-            \hspace{1cm}$x_i(\lambda)$  is its solution.
-      \item Coordination problem:
-            \beq
-            \max_{\lambda \geq 0} \left[ L_D(\lambda)= \sum_{i=1}^p L_i(x_i(\lambda),\lambda)
-               - \sum_{j=1}^m   \lambda_j M_j \right]
-            \eeq
-   \end{enumerate}
-\end{frame}
-
-\begin{frame}
-   \frametitle{Powell20 test problem}
-   \beq
-   \min_{x} 0.5 \cdot ( x_1^2+x_2^2+....+x_n^2 )
-   \eeq
-   \beq
-   x_{k+1}-x_{k} \geq -0.5+(-1)^k\cdot k; \;\; k=1,\ldots,n-1
-   \eeq
-   \beq
-   x_1-x_n \geq n-0.5
-   \eeq
-\end{frame}
-\begin{frame}[fragile]
-   \frametitle{The parallelization}
-   It was necessary ONLY to replace the lines:
-   \begin{verbatim}
-for i=1:p
-  [xi(:,1,i),fi(1,1,i)]=...
-       pow20_pm_loct(xloc(:,1,i),lambda,ni,p,options_k);
-end
-\end{verbatim}
-   with the line
-   \begin{verbatim}
-  [xi,fi]=jpar_client('pow20_pm_loct',...
-                            xloc,lambda,ni,p,options_k);
-\end{verbatim}
-\end{frame}
-
-\begin{frame}
-   \frametitle{The speed-up of parallelization and \textcolor{red}{decomposition}}
-   \centering
-   \includegraphics[height=6.5cm]{fig1}
-\end{frame}
-\begin{frame}
-   \frametitle{The speed-up of parallelization and \textcolor{red}{decomposition}}
-   \centering
-   \includegraphics[height=6.5cm]{fig2}
-\end{frame}
-\begin{frame}
-   \frametitle{The speed-up of parallelization and \textcolor{red}{decomposition}}
-   \centering
-   \includegraphics[height=6.5cm]{fig3}
-\end{frame}
-\begin{frame}
-   \frametitle{The speed-up of parallelization and \textcolor{red}{decomposition}}
-   \centering
-   \includegraphics[height=6.5cm]{fig4}
-\end{frame}
-\begin{frame}
-   \frametitle{The speed-up of parallelization and \textcolor{red}{decomposition}}
-   \centering
-   \includegraphics[height=6.5cm]{fig5}
-\end{frame}
 
 \section{Plan przyszłych prac}
 
-\begin{frame}[allowframebreaks,fragile]
-   \frametitle{Conclusions}
-   \begin{enumerate}
-      \item The jPar is:
-            \begin{itemize}
-               \item relatively small (about 800 lines of Java code and 400 lines of Matlab code)
-               \item simple in installation
-               \item simple in use (the changes in sequential code are very small)
-               \item reliable (there are no errors caused by disk transmissions)
-               \item heterogenous (Linux, Windows, OS X)
-               \item interoperable between various Matlab and Java versions
-               \item open and free (can be downloaded from the MatlabCentral page
-                     \url{http://www.mathworks.com/matlabcentral/fileexchange/50797} )
-            \end{itemize}
-            \newpage
-      \item Avoiding active
-            polling it does not waste the energy, network resources and does
-            not block the cores waiting for tasks
-      \item The problems that may be solved should have fork-join structure, without communication between instances)
-   \end{enumerate}
+\begin{frame}[allowframebreaks]
+	\frametitle{Bibliografia}
+	\bibliographystyle{plain}
+	\begin{thebibliography}{9}
+		\bibitem{BGD} P. Schroten. "Introducing BGD: a DSL to express board games and gameplay" (2019).
+
+		\bibitem{RAS} V. Lap. "Introducing RAS: A Domain Specific Language For Trading Card Games" (2018).
+
+		\bibitem{metagame}  B. Pell. "METAGAME: A New Challenge for Games and Learning. In Heuristic Programming in Artificial Intelligence: The Third Computer Olympiad." (1992).
+
+		\bibitem{GDL}  N. Love, T. Hinrichs, D. Haley, E. Schkufza, and M. Genesereth. "General Game Playing:
+Game Description Language Specification. Technical report, Stanford Logic Group" (2006).
+
+		\bibitem{GGP} Kowalski, Jakub. "General Game Description Languages" (2016).
+	\end{thebibliography}
 \end{frame}
-\begin{frame}
-   \frametitle{Successful application of jPar abroad}
-   A beta version of {\emph jPar}  in:
-   \begin{enumerate}
-      \item MEIGO system: \\
-            {\em J.A. Egea, D. Henriques, T. Cokelaer, A.F. Villaverde, A. MacNamara, D.-P. Danciu, J.R. Banga and J. Saez-Rodriguez, ``MEIGO: an open-source software suite based on metaheuristics for global optimization in systems biology and bioinformatics", BMC Bioinformatics, vol. 15,  2014.}
-      \item CeSS system:\\
-            {\em D.R. Penasa, P. Gonz\'{a}lez , J.A. Egea, J.R. Banga and R. Doallo,
-            ``Parallel Metaheuristics in Computational Biology: An Asynchronous Cooperative Enhanced Scatter Search Method", Procedia Computer Science, vol. 51, 2015, pp.  630--639}
-   \end{enumerate}
-   in Department of Applied Mathematics and Statistics, Universidad Politécnica de Cartagena,
-   (Bio)Process Engineering Group, Spanish National Research Council,
-   European Molecular Biology Laboratory, Cambridge,
-   Instituto de Investigaciones Marinas
-\end{frame}
+
 \end{document}
