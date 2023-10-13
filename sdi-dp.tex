@@ -4,6 +4,7 @@
 \usecolortheme{seahorse}
 \setbeamertemplate{navigation symbols}{}
 \setbeamertemplate{bibliography item}{\insertbiblabel}
+\setbeamertemplate{caption}{\raggedright\scriptsize\insertcaption\par}
 \setbeamercolor{background canvas}{bg=}
 \usepackage{beamerthemesplit}
 \usepackage{pgf}
@@ -29,6 +30,23 @@
 \newcounter{saveenumi}
 \newcommand{\seti}{\setcounter{saveenumi}{\value{enumi}}}
 \newcommand{\conti}{\setcounter{enumi}{\value{saveenumi}}}
+\lstset{
+    numbers=left,
+    breaklines=true,
+    tabsize=2,
+	numberstyle=\color{gray}\footnotesize,
+    basicstyle=\small\ttfamily,
+}
+\AtBeginSection{
+  \begin{frame}
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+    \usebeamerfont{title}\insertsectionhead\par%
+  \end{beamercolorbox}
+  \vfill
+  \end{frame}
+}
 
 \hypersetup{
    pdftitle={Oprogramowanie do gier opartych o planszę w postaci szachownicy},
@@ -52,11 +70,12 @@ Politechnika Warszawska}
 \frame{\tableofcontents\frametitle{Plan prezentacji}}
 
 \section{Cel pracy}
+
 \begin{frame}
 	\frametitle{Cel pracy}
 	3 główne cele pracy:
 	\begin{enumerate}
-		\item opracowanie języka DSL\footnotemark do opisywania zasad gier planszowych opartych o szachownicę
+		\item opracowanie języka dziedzinowego do opisywania zasad gier planszowych opartych o szachownicę
 		\item implementacja silnika gry
 		      \begin{itemize}
 			      \item potrafi interpretować zasady w ww. języku
@@ -64,20 +83,19 @@ Politechnika Warszawska}
 		      \end{itemize}
 		\item stworzenie interfejsu użytkownika
 	\end{enumerate}
-	\footnotetext{DSL (ang. Domain Specific Language) - język dziedzinowy}
 \end{frame}
 
 \section{Tematyka pracy}
 
 \begin{frame}
-	\frametitle{Język - wstępne założenia}
+	\frametitle{Język -- wstępne założenia}
 	\begin{itemize}
 		\item Składnia języka jest kluczowym elementem rozwiązania
-		\item Wstępne założenia:
+		\item Wstępne założenia języka:
 		      \begin{itemize}
-			      \item pozwala wyrazić zasady min. 3 rodzajów  gier
-			      \item możliwie nieskomplikowany
 			      \item ograniczony do 2-osobowych gier opartych o szachownicę
+			      \item pozwala wyrazić zasady min. 3 gier -- tradycyjne szachy, Halma, Dōbutsu shōgi
+			      \item możliwie nieskomplikowany
 			      \item zwięzły
 			      \item wymaga rozumienia podstawowych zasad programowania
 		      \end{itemize}
@@ -85,62 +103,85 @@ Politechnika Warszawska}
 \end{frame}
 
 \begin{frame}
-	\frametitle{Język - elementy}
+	\frametitle{Halma}
+	\begin{columns}
+		\begin{column}{.48\textwidth}
+			\begin{itemize}
+				\item Cel -- ustawić wszystkie piony na polu startowym przeciwnika
+				\item Poruszanie o 1 po  krawędziach kwadratu
+				\item Przeskakiwanie przez 1 piona po krawędziach kwadratu (dozwolone łączenie wiele na raz)
+			\end{itemize}
+		\end{column}%
+		\hfill
+		\begin{column}{.60\textwidth}
+			\begin{figure}
+				\includegraphics[height=4.5cm]{halma.png}
+				\centering
+				\caption{\url{https://brainking.com/en/GameRules?tp=33}}
+			\end{figure}
+		\end{column}
+	\end{columns}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Dōbutsu shōgi}
+	\begin{columns}
+		\begin{column}{.48\textwidth}
+			\begin{itemize}
+				\item Cel -- zbić lwa przeciwnika lub przejść lwem na stronę przeciwnika
+				\item Poruszanie zgodnie z oznaczeniami na figurach
+				\item Promocja kurczaka do kury
+				\item Możliwość kładzenia zbitych figur przeciwnika
+			\end{itemize}
+		\end{column}%
+		\hfill
+		\begin{column}{.60\textwidth}
+			\begin{figure}
+				\includegraphics[height=4.5cm]{dobutsu-shogi.png}
+				\centering
+				\caption{\url{https://www.pychess.org/variants/dobutsu}}
+			\end{figure}
+		\end{column}
+	\end{columns}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Język -- elementy}
 	Elementy języka:
 	\begin{itemize}
 		\item definicja planszy (rozmiar)
-		\item typy figur
+		\item definicja typów figur
 		      \begin{itemize}
 			      \item generatory ruchu (funkcje typu: {\tt pozycja $\rightarrow$ []pozycja})
 			      \item akcje (funkcje typu: {\tt pozycja $\rightarrow$ void})
 		      \end{itemize}
 		\item walidatory stanu gry po ruchu (funkcje typu: {\tt ruch $\rightarrow$ bool})
-		\item stan początkowy -- ustawienie figur
+		\item stan początkowy (ustawienie figur na planszy)
 		\item predykat zakończenia gry + wybór zwycięzcy
 		\item funkcja przebiegu rundy
+		\item dostęp do bieżącego stanu gry z każdej funkcji (tylko do odczytu)
 	\end{itemize}
 \end{frame}
 
-\begin{frame}[allowframebreaks]
-	\frametitle{Język - podejścia}
-	Możliwe podejścia:
-	\begin{enumerate}
-		\item Stworzenie własnego języka DSL
-		      \begin{itemize}
-			      \pro całkowita możliwość dostosowania języka do potrzeb
-			      \con tworzenie parsera bardzo pracochłonne
-			      \con brak dodatkowych narzędzi (formatowanie, detekcja błędów składniowych, itp.)
-			      \con brak znajomości języka u użytkowników
-		      \end{itemize}
-		\item Stworzenie DSL zanurzonego w języku programowania (np. Kotlin, Haskell, Lua)
-		      \begin{itemize}
-			      \pro dostępne wszystkie możliwości języka nadrzędnego
-			      \pro znajoma składnia dla użytkowników
-			      \con trudny do ograniczenia (problem bezpieczeństwa)
-		      \end{itemize}
-		\framebreak
-		\item Użycie istniejącego formatu (np. {\tt JSON}, {\tt YAML})
-		      \begin{itemize}
-			      \pro formaty popularne i znane przez użytkowników
-			      \pro brak potrzeby tworzenia parsera
-			      \con brak łatwego zapisu wyrażeń, funkcji, pętli, itp.
-			      \con brak możliwości modyfikacji składni języka
-		      \end{itemize}
-	\end{enumerate}
-\end{frame}
-
-\begin{frame}[t]
-	\vspace{0.7cm}
+\begin{frame}
 	\frametitle{Silnik gry}
-	Silnik gry -- maszyna stanów
-	\begin{itemize}
-		\item dla każdego stanu generuje możliwe przejścia
-		\item odseparowany od modułu parsera języka
-		\item dobrze przetestowany
-	\end{itemize}
-	\begin{textblock*}{5cm}(7.5cm,4.5cm)
-		\includegraphics[width=4.5cm]{stany.png}
-	\end{textblock*}
+	\begin{columns}
+		\begin{column}{.50\textwidth}
+			Silnik gry -- maszyna stanów
+			\begin{itemize}
+				\item dla każdego stanu generuje możliwe przejścia
+				\item odseparowany od modułu parsera języka
+				\item dobrze przetestowany
+			\end{itemize}
+		\end{column}%
+		\hfill
+		\begin{column}{.50\textwidth}
+			\begin{figure}
+				\includegraphics[width=4.5cm]{stany.png}
+				\centering
+			\end{figure}
+		\end{column}
+	\end{columns}
 \end{frame}
 
 \begin{frame}
@@ -170,7 +211,7 @@ Politechnika Warszawska}
 		\item Język opisu gier planszowych (szeroki zakres)
 		\item Główny cel: możliwość opisu jak największej liczby gier
 		\item Opis gry za pomocą abstrakcyjnych elementów składowych (np. obiekt, lokacja, widoczność)
-		\item Mało zwięzły (np. implementacja Chińczyka - 400 linii, Manilla - 1100 linii)
+		\item Mało zwięzły (np. implementacja Chińczyka -- 400 linii, Manilla -- 1100 linii)
 		\item Brak udogodnień znanych z języków programowania (np. pętle, listy)
 	\end{itemize}
 \end{frame}
@@ -209,58 +250,243 @@ Politechnika Warszawska}
 
 \section{Zadania pracy}
 
+\begin{frame}[allowframebreaks]
+	\frametitle{Język -- podejścia}
+	Możliwe podejścia:
+	\begin{enumerate}
+		\item stworzenie własnego języka dziedzinowego
+		      \begin{itemize}
+			      \pro całkowita możliwość dostosowania języka do potrzeb
+			      \con tworzenie parsera bardzo pracochłonne
+			      \con brak dodatkowych narzędzi (formatowanie, detekcja błędów składniowych, itp.)
+			      \con brak znajomości języka u użytkowników
+		      \end{itemize}
+		\item stworzenie języka dziedzinowego zanurzonego w języku programowania (np. Kotlin, Haskell, Lua)
+		      \begin{itemize}
+			      \pro dostępne wszystkie możliwości języka nadrzędnego
+			      \pro znajoma składnia dla użytkowników
+			      \con trudny do ograniczenia (problem bezpieczeństwa)
+		      \end{itemize}
+		      \framebreak
+		\item użycie istniejącego formatu (np. {\tt JSON}, {\tt YAML})
+		      \begin{itemize}
+			      \pro formaty popularne i znane przez użytkowników
+			      \pro brak potrzeby tworzenia parsera
+			      \con brak łatwego zapisu wyrażeń, funkcji, pętli, itp.
+			      \con brak możliwości modyfikacji składni języka
+		      \end{itemize}
+	\end{enumerate}
+\end{frame}
+
 \begin{frame}
 	\frametitle{Język -- wybór podejścia}
 	Istniejący format danych HCL jako baza języka
 	\begin{itemize}
-		\item sprawdzony format używany m. in. w Terraformie\footnotemark
+		\item sprawdzony i znany format używany m. in. w Terraformie\footnotemark
 		\item zawiera elementy standardowych języków programowania:
 		      \begin{itemize}
 			      \item ewaluacja wyrażeń arytmetycznych i logicznych
-			      \item wykonywanie funkcji zdefiniowanych w kontekście ewaluacji
+			      \item wykonywanie funkcji wbudowanych
 			      \item pętle w postaci list/dictionary comprehensions
 		      \end{itemize}
 		\item oficjalny dodatek {\tt userfunc} umożliwia definicję funkcji przez użytkownika
 		\item zwięzły i czytelny kod
 	\end{itemize}
-	\footnotetext{Terraform -- narzędzie do zarządzania infrastrukturą komputerową w modelu infrastruktura jako kod (ang. IaC - Infrastructure as Code)}
+	\footnotetext{Terraform -- narzędzie do zarządzania infrastrukturą komputerową w modelu infrastruktura jako kod (ang. IaC -- Infrastructure as Code)}
 \end{frame}
 
 \begin{frame}
-	\frametitle{Język -- przykładowy kod}
-	Istniejący format danych HCL jako baza języka
+	\frametitle{HCL -- problemy}
 	\begin{itemize}
-		\item sprawdzony format używany m. in. w Terraformie\footnotemark
-		\item zawiera elementy standardowych języków programowania:
+		\item Dodatek {\tt userfunc} umożliwia tworzenie jedynie funkcji składających się z jednego wyrażenia
 		      \begin{itemize}
-			      \item ewaluacja wyrażeń arytmetycznych i logicznych
-			      \item wykonywanie funkcji zdefiniowanych w kontekście ewaluacji
-			      \item pętle w postaci list/dictionary comprehensions
+			      \item rozwiązanie -- modyfikacja dodatku do potrzeb
 		      \end{itemize}
-		\item oficjalny dodatek {\tt userfunc} umożliwia definicję funkcji przez użytkownika
-		\item zwięzły i czytelny kod
+		\item Ewaluacja operacji logicznych {\tt \&\&} i {\tt ||} nie jest leniwa
+		      \begin{itemize}
+			      \item niespodziewane błędy podczas interpretacji reguł
+			      \item \lstinline|isValid = destination != null && piece_at(destination) == null|
+		      \end{itemize}
 	\end{itemize}
-	\footnotetext{Terraform -- narzędzie do zarządzania infrastrukturą komputerową w modelu infrastruktura jako kod (ang. IaC - Infrastructure as Code)}
+\end{frame}
+
+\begin{frame}[allowframebreaks]
+	\frametitle{Pozostałe ustalenia}
+	\begin{itemize}
+		\item Język:
+		      \begin{itemize}
+			      \item opracowanie wstępnego pliku zasad przed pracami nad silnikiem
+			      \item modyfikacja pliku w miarę odkrywania nowych problemów przy pracy nad silnikiem
+			      \item moduł dekodujący, sprowadzający do obiektów domenowych używanych w silniku
+			      \item testy plików zasad w postaci testów integracyjnych
+		      \end{itemize}
+		\item Silnik:
+		      \begin{itemize}
+			      \item język: Go (w nim jest napisany parser HCL)
+			      \item testy jednostkowe silnika w odosobnieniu od modułu dekodującego zasady
+			      \item asynchroniczna komunikacja między obiektami za pomocą zdarzeń (łatwa implementacja cofania ruchów)
+		      \end{itemize}
+		      \framebreak
+		\item Interfejs użytkownika:
+		      \begin{itemize}
+			      \item początkowo tymczasowy interfejs terminalowy
+			      \item docelowo interfejs w przeglądarce
+			      \item TypeScript + React
+			      \item komunikacja z silnikiem za pomocą protokołu HTTP oraz WebSocket
+		      \end{itemize}
+	\end{itemize}
 \end{frame}
 
 \section{Dotychczasowe wyniki pracy}
 
+\begin{frame}
+	\frametitle{Dotychczasowe wyniki pracy}
+	\begin{itemize}
+		\item Opisane wszystkie 3 gry w plikach z zasadami
+		\item Silnik potrafiący poprawnie interpretować powyższe pliki
+		\item Pokrycie testami jednostkowymi silnika na poziomie 56,2\%
+		\item Testy integracyjne dekoder $\leftrightarrow$ silnik
+		      \begin{itemize}
+			      \item sprawdzają współpracę modułów
+			      \item sprawdzają poprawność plików z zasadami (na razie tylko szachy)
+		      \end{itemize}
+		\item Rozpoczęcie prac nad interfejsem w przeglądarce
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+	\frametitle{Język -- przykładowy kod (definicja typu figury)}
+
+	\begin{lstlisting}
+piece_type "king" {
+	motion {
+		generator = "motion_castling"
+		actions   = ["displace_rook_after_castling"]
+	}
+	motion {
+		generator = "motion_neighbours"
+	}
+}
+	\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+	\frametitle{Język -- przykładowy kod (generator ruchu)}
+
+	\begin{lstlisting}
+composite_function "motion_neighbours" {
+  params = [square, piece]
+  result = {
+    offsets = [
+      [0, 1], [1, 0], [0, -1], [-1, 0],
+      [1, 1], [1, -1], [-1, 1], [-1, -1]
+    ]
+    dests = [for offset in offsets : get_square_relative(square, offset)]
+    return = [
+      for dest in filternulls(dests) : dest
+      if !belongs_to(piece.color, dest)
+    ]
+  }
+}
+	\end{lstlisting}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Interfejs terminalowy -- szachy}
+	\centering
+	\includegraphics[width=0.95\textwidth]{chess-terminal.png}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Interfejs terminalowy -- Halma}
+	\centering
+	\includegraphics[width=0.95\textwidth]{halma-terminal.png}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Interfejs terminalowy -- Dōbutsu shōgi}
+	\centering
+	\includegraphics[width=0.95\textwidth]{dobutsu-shogi-terminal.png}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Interfejs w przeglądarce -- szachy}
+	\centering
+	\includegraphics[height=0.85\textheight]{chess-browser.png}
+\end{frame}
+
 \section{Plan przyszłych prac}
+
+\begin{frame}
+	\frametitle{Program minimum (gotowy)}
+	\begin{itemize}
+		\item Opracowanie języka dziedzinowego, bazującego na HCL, do opisywania zasad dwuosobowych gier planszowych opartych o szachownicę
+		\item Język musi pozwalać na opisanie zasad:
+		      \begin{itemize}
+			      \item standardowych szachów
+			      \item gry Dōbutsu Shōgi
+			      \item gry Halma
+		      \end{itemize}
+		\item Projekt i implementacja silnika gry, będącego interpreterem ww. języka,
+		\item Stworzenie interfejsu użytkownika, pozwalającego na prowadzenie rozgrywki dwóch osób
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Plan przyszłych prac}
+	\begin{itemize}
+		\item Październik:
+		      \begin{itemize}
+			      \item Stworzyć serwer HTTP/WS do interakcji z silnikiem
+			      \item Połączyć interfejs w przeglądarce z ww. serwerem
+		      \end{itemize}
+		\item Listopad:
+		      \begin{itemize}
+			      \item Dodać możliwość gry na wielu urządzeniach
+			      \item Rozszerzyć plik z zasadami o możliwość konfiguracji wyglądu figur
+		      \end{itemize}
+		\item Grudzień i Styczeń
+		      \begin{itemize}
+			      \item Napisać pracę inżynierską
+		      \end{itemize}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Dodatkowe zagadnienia do rozwiązania}
+	\begin{itemize}
+		\item Zautomatyzować budowanie projektu (konteneryzacja)
+		\item Wdrożyć projekt na wybraną usługę chmurową
+		\item Dodać edytor tekstowy zasad do interfejsu w przeglądarce
+		\item Dodać przyjazny edytor graficzny zasad do interfejsu w przeglądarce
+	\end{itemize}
+\end{frame}
+
+\section{Podsumowanie}
+
+\begin{frame}
+	\frametitle{Podsumowanie}
+
+	\begin{itemize}
+		\item Język dziedzinowy do generowania gier planszowych opartych o szachownicę
+		\item Język bazuje na HCL, skupia się na prostocie pisania i modyfikowania reguł oraz zwięzłości
+		\item Modularyzacja projektu ułatwia efektywne testowanie
+	\end{itemize}
+\end{frame}
 
 \begin{frame}[allowframebreaks]
 	\frametitle{Bibliografia}
 	\bibliographystyle{plain}
 	\begin{thebibliography}{9}
-		\bibitem{BGD} P. Schroten. "Introducing BGD: a DSL to express board games and gameplay" (2019).
+		\bibitem{BGD} P. Schroten. ,,Introducing BGD: a DSL to express board games and gameplay'' (2019).
 
-		\bibitem{RAS} V. Lap. "Introducing RAS: A Domain Specific Language For Trading Card Games" (2018).
+		\bibitem{RAS} V. Lap. ,,Introducing RAS: A Domain Specific Language For Trading Card Games'' (2018).
 
-		\bibitem{metagame}  B. Pell. "METAGAME: A New Challenge for Games and Learning. In Heuristic Programming in Artificial Intelligence: The Third Computer Olympiad." (1992).
+		\bibitem{metagame}  B. Pell. ,,METAGAME: A New Challenge for Games and Learning. In Heuristic Programming in Artificial Intelligence: The Third Computer Olympiad.'' (1992).
 
-		\bibitem{GDL}  N. Love, T. Hinrichs, D. Haley, E. Schkufza, and M. Genesereth. "General Game Playing:
-Game Description Language Specification. Technical report, Stanford Logic Group" (2006).
+		\bibitem{GDL}  N. Love, T. Hinrichs, D. Haley, E. Schkufza, and M. Genesereth. ,,General Game Playing: Game Description Language Specification. Technical report, Stanford Logic Group'' (2006).
 
-		\bibitem{GGP} Kowalski, Jakub. "General Game Description Languages" (2016).
+		\bibitem{GGP} J. Kowalski. ,,General Game Description Languages'' (2016).
 	\end{thebibliography}
 \end{frame}
 
