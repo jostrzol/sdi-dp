@@ -37,16 +37,16 @@
 	numberstyle=\color{gray}\footnotesize,
     basicstyle=\small\ttfamily,
 }
-\AtBeginSection{
-  \begin{frame}
-  \vfill
-  \centering
-  \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
-    \usebeamerfont{title}\insertsectionhead\par%
-  \end{beamercolorbox}
-  \vfill
-  \end{frame}
-}
+% \AtBeginSection{
+%   \begin{frame}
+%   \vfill
+%   \centering
+%   \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+%     \usebeamerfont{title}\insertsectionhead\par%
+%   \end{beamercolorbox}
+%   \vfill
+%   \end{frame}
+% }
 
 \hypersetup{
    pdftitle={Oprogramowanie do gier opartych o planszę w postaci szachownicy},
@@ -60,7 +60,7 @@
    język dziedzinowy.}
 \author[Jakub Ostrzołek]{\textbf{Jakub Ostrzołek} \\%
 \footnotesize Promotor: dr inż. Patryk Chaber}
-\institute{Instytut Automatyki i Technik Informacyjnych\\%
+\institute{Instytut Automatyki i Informatyki Stosowanej\\%
 Politechnika Warszawska}
 
 \begin{document}
@@ -72,8 +72,7 @@ Politechnika Warszawska}
 \section{Cel pracy}
 
 \begin{frame}
-	\frametitle{Cel pracy}
-	3 główne cele pracy:
+	\frametitle{Cele pracy}
 	\begin{enumerate}
 		\item opracowanie języka dziedzinowego do opisywania zasad gier planszowych opartych o szachownicę
 		\item implementacja silnika gry
@@ -90,15 +89,11 @@ Politechnika Warszawska}
 \begin{frame}
 	\frametitle{Język -- wstępne założenia}
 	\begin{itemize}
-		\item Składnia języka jest kluczowym elementem rozwiązania
-		\item Wstępne założenia języka:
-		      \begin{itemize}
-			      \item ograniczony do 2-osobowych gier opartych o szachownicę
-			      \item pozwala wyrazić zasady min. 3 gier -- tradycyjne szachy, Halma, Dōbutsu shōgi
-			      \item możliwie nieskomplikowany
-			      \item zwięzły
-			      \item wymaga rozumienia podstawowych zasad programowania
-		      \end{itemize}
+		\item opisuje gry 2-osobowe, turowe, deterministyczne
+		\item możliwie nieskomplikowany
+		\item wymaga rozumienia podstawowych zasad programowania
+		\item zwięzły
+		\item pozwala wyrazić zasady min. 3 gier -- tradycyjne szachy, Halma, Dōbutsu shōgi
 	\end{itemize}
 \end{frame}
 
@@ -146,29 +141,10 @@ Politechnika Warszawska}
 \end{frame}
 
 \begin{frame}
-	\frametitle{Język -- elementy}
-	Elementy języka:
-	\begin{itemize}
-		\item definicja planszy (rozmiar)
-		\item definicja typów figur
-		      \begin{itemize}
-			      \item generatory ruchu (funkcje typu: {\tt pozycja $\rightarrow$ []pozycja})
-			      \item akcje (funkcje typu: {\tt pozycja $\rightarrow$ void})
-		      \end{itemize}
-		\item walidatory stanu gry po ruchu (funkcje typu: {\tt ruch $\rightarrow$ bool})
-		\item stan początkowy (ustawienie figur na planszy)
-		\item predykat zakończenia gry + wybór zwycięzcy
-		\item funkcja przebiegu rundy
-		\item bieżący stan gry dostępny z każdej funkcji (tylko do odczytu)
-		\item kilka funkcji wbudowanych modyfikujących stan gry (np. {\tt capture, move})
-	\end{itemize}
-\end{frame}
-
-\begin{frame}
 	\frametitle{Silnik gry}
 	\begin{columns}
 		\begin{column}{.50\textwidth}
-			Silnik gry -- maszyna stanów
+			Silnik gry -- automat
 			\begin{itemize}
 				\item odseparowany od modułu dekodującego zasady
 				\item inicjalizowany stanem początkowym pochodzącym z modułu dekodującego zasady
@@ -262,44 +238,35 @@ Politechnika Warszawska}
 
 \section{Zadania pracy}
 
-\begin{frame}[allowframebreaks]
-	\frametitle{Język -- podejścia}
-	Możliwe podejścia:
-	\begin{enumerate}
-		\item stworzenie własnego języka dziedzinowego
+\begin{frame}
+	\frametitle{Język -- elementy}
+	Elementy języka:
+	\begin{itemize}
+		\item definicja planszy (rozmiar)
+		\item stan początkowy (ustawienie figur na planszy)
+		\item definicja typów figur
 		      \begin{itemize}
-			      \pro całkowita możliwość dostosowania języka do potrzeb
-			      \con tworzenie parsera bardzo pracochłonne
-			      \con brak dodatkowych narzędzi (formatowanie, detekcja błędów składniowych, itp.)
-			      \con brak znajomości języka u użytkowników
+			      \item generatory ruchu (funkcje typu: {\tt pozycja $\rightarrow$ []pozycja})
+			      \item akcje (funkcje typu: {\tt pozycja $\rightarrow$ void})
 		      \end{itemize}
-		\item stworzenie języka dziedzinowego zanurzonego w języku programowania (np. Kotlin, Haskell, Lua)
-		      \begin{itemize}
-			      \pro dostępne wszystkie możliwości języka nadrzędnego
-			      \pro znajoma składnia dla użytkowników
-			      \con trudny do ograniczenia (problem bezpieczeństwa)
-		      \end{itemize}
-		      \framebreak
-		\item użycie istniejącego formatu (np. {\tt JSON}, {\tt YAML})
-		      \begin{itemize}
-			      \pro formaty popularne i znane przez użytkowników
-			      \pro brak potrzeby tworzenia parsera
-			      \con brak łatwego zapisu wyrażeń, funkcji, pętli, itp.
-			      \con brak możliwości modyfikacji składni języka
-		      \end{itemize}
-	\end{enumerate}
+		\item walidatory stanu gry po ruchu (funkcje typu: {\tt ruch $\rightarrow$ bool})
+		\item predykat zakończenia gry + wybór zwycięzcy
+		% \item funkcja przebiegu rundy
+		\item bieżący stan gry dostępny z każdej funkcji (tylko do odczytu)
+		\item kilka funkcji wbudowanych modyfikujących stan gry (np. {\tt capture, move})
+	\end{itemize}
 \end{frame}
 
 \begin{frame}
-	\frametitle{Język -- wybór podejścia}
-	Istniejący format danych HCL jako baza języka
+	\frametitle{HCL bazą języka}
+	Istniejący format HCL jako baza języka
 	\begin{itemize}
 		\item sprawdzony i znany format używany m. in. w Terraformie\footnotemark
 		\item zawiera elementy standardowych języków programowania:
 		      \begin{itemize}
 			      \item ewaluacja wyrażeń arytmetycznych i logicznych
 			      \item wykonywanie funkcji wbudowanych
-			      \item pętle w postaci list/dictionary comprehensions
+			      \item pętle w postaci ,,list/obiektów składanych'' (ang. list/object comprehension)
 		      \end{itemize}
 		\item oficjalny dodatek {\tt userfunc} umożliwia definicję funkcji przez użytkownika
 		\item zwięzły i czytelny kod
@@ -307,39 +274,22 @@ Politechnika Warszawska}
 	\footnotetext{Terraform -- narzędzie do zarządzania infrastrukturą komputerową w modelu infrastruktura jako kod (ang. IaC -- Infrastructure as Code)}
 \end{frame}
 
-\begin{frame}
-	\frametitle{HCL -- problemy}
-	\begin{itemize}
-		\item Dodatek {\tt userfunc} umożliwia tworzenie jedynie funkcji składających się z jednego wyrażenia
-		      \begin{itemize}
-			      \item rozwiązanie -- modyfikacja dodatku do potrzeb
-		      \end{itemize}
-		\item Ewaluacja operacji logicznych {\tt \&\&} i {\tt ||} nie jest ,,leniwa''
-		      \begin{itemize}
-			      \item niespodziewane błędy podczas interpretacji reguł
-			      \item \lstinline|isValid = destination != null && piece_at(destination) == null|
-		      \end{itemize}
-	\end{itemize}
-\end{frame}
-
-\begin{frame}[allowframebreaks]
+\begin{frame}%[allowframebreaks]
 	\frametitle{Pozostałe ustalenia}
 	\begin{itemize}
-		\item Język:
-		      \begin{itemize}
-			      \item skupienie na prostocie użytkowania
-			      \item opracowanie wstępnego pliku zasad przed pracami nad silnikiem
-			      \item modyfikacja pliku w miarę odkrywania nowych problemów przy pracy nad silnikiem
-			      \item moduł dekodujący, sprowadzający do obiektów domenowych używanych w silniku
-			      \item testy plików zasad w postaci testów integracyjnych
-		      \end{itemize}
-		      \framebreak
+		% \item Język:
+		%       \begin{itemize}
+		% 	      \item opracowanie wstępnego pliku zasad przed pracami nad silnikiem i modyfikacja w miarę potrzeb
+		% 	      \item moduł dekodujący, sprowadzający do obiektów domenowych używanych w silniku
+		% 	      \item testy plików zasad w postaci testów integracyjnych
+		%       \end{itemize}
 		\item Silnik:
 		      \begin{itemize}
 			      \item język: Go (w nim jest napisany parser HCL)
-			      \item testy jednostkowe silnika w odosobnieniu od modułu dekodującego zasady
-			      \item asynchroniczna komunikacja między obiektami za pomocą zdarzeń (łatwa implementacja cofania ruchów)
+			    %   \item testy jednostkowe silnika w odosobnieniu od modułu dekodującego zasady
+			      \item komunikacja między obiektami za pomocą zdarzeń % (łatwa implementacja cofania ruchów)
 		      \end{itemize}
+		    %   \framebreak
 		\item Interfejs użytkownika:
 		      \begin{itemize}
 			      \item początkowo tymczasowy interfejs terminalowy
@@ -357,13 +307,8 @@ Politechnika Warszawska}
 	\begin{itemize}
 		\item Opisane wszystkie 3 gry w plikach z zasadami
 		\item Silnik potrafiący poprawnie interpretować powyższe pliki
-		\item Tymczasowy interfejs terminalowy
-		\item Pokrycie testami jednostkowymi silnika na poziomie 56,2\%
-		\item Testy integracyjne dekoder $\leftrightarrow$ silnik
-		      \begin{itemize}
-			      \item sprawdzają współpracę modułów
-			      \item sprawdzają poprawność plików z zasadami (na razie tylko szachy)
-		      \end{itemize}
+		\item Pokrycie testami silnika na poziomie 56,2\%
+		\item Tymczasowy interfejs terminalowy gotowy
 		\item Rozpoczęcie prac nad interfejsem w przeglądarce
 	\end{itemize}
 \end{frame}
@@ -485,11 +430,11 @@ composite_function "motion_neighbours" {
 	\begin{itemize}
 		\item Język dziedzinowy do generowania gier planszowych opartych o szachownicę
 		\item Język bazuje na HCL, charakteryzuje się prostotą pisania i modyfikowania reguł oraz zwięzłością
-		\item Modularyzacja projektu ułatwia rozdzielenie obowiązków i efektywne testowanie
+		\item Opis zasad gry za pomocą funkcji ułatwia rozumienie kodu
 	\end{itemize}
 \end{frame}
 
-\begin{frame}[allowframebreaks]
+\begin{frame}[allowframebreaks,noframenumbering]
 	\frametitle{Bibliografia}
 	\bibliographystyle{plain}
 	\begin{thebibliography}{9}
@@ -510,5 +455,49 @@ composite_function "motion_neighbours" {
 		\bibitem{dobutsu-shogi} \url{https://www.pychess.org/variants/dobutsu}
 	\end{thebibliography}
 \end{frame}
+
+\begin{frame}[allowframebreaks,noframenumbering]
+	\frametitle{Język -- podejścia}
+	Możliwe podejścia:
+	\begin{enumerate}
+		\item stworzenie własnego języka dziedzinowego
+		      \begin{itemize}
+			      \pro całkowita możliwość dostosowania języka do potrzeb
+			      \con tworzenie parsera bardzo pracochłonne
+			      \con brak dodatkowych narzędzi (formatowanie, detekcja błędów składniowych, itp.)
+			      \con brak znajomości języka u użytkowników
+		      \end{itemize}
+		\item stworzenie języka dziedzinowego zanurzonego w języku programowania (np. Kotlin, Haskell, Lua)
+		      \begin{itemize}
+			      \pro dostępne wszystkie możliwości języka nadrzędnego
+			      \pro znajoma składnia dla użytkowników
+			      \con trudny do ograniczenia (problem bezpieczeństwa)
+		      \end{itemize}
+		      \framebreak
+		\item użycie istniejącego formatu (np. {\tt JSON}, {\tt YAML})
+		      \begin{itemize}
+			      \pro formaty popularne i znane przez użytkowników
+			      \pro brak potrzeby tworzenia parsera
+			      \con brak łatwego zapisu wyrażeń, funkcji, pętli, itp.
+			      \con brak możliwości modyfikacji składni języka
+		      \end{itemize}
+	\end{enumerate}
+\end{frame}
+
+\begin{frame}[noframenumbering]
+	\frametitle{HCL -- problemy}
+	\begin{itemize}
+		\item Dodatek {\tt userfunc} umożliwia tworzenie jedynie funkcji składających się z jednego wyrażenia
+		      \begin{itemize}
+			      \item rozwiązanie -- modyfikacja dodatku do potrzeb
+		      \end{itemize}
+		\item Ewaluacja operacji logicznych {\tt \&\&} i {\tt ||} nie jest ,,leniwa''
+		      \begin{itemize}
+			      \item niespodziewane błędy podczas interpretacji reguł
+			      \item \lstinline|isValid = destination != null && piece_at(destination) == null|
+		      \end{itemize}
+	\end{itemize}
+\end{frame}
+
 
 \end{document}
