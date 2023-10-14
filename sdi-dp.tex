@@ -159,7 +159,8 @@ Politechnika Warszawska}
 		\item stan początkowy (ustawienie figur na planszy)
 		\item predykat zakończenia gry + wybór zwycięzcy
 		\item funkcja przebiegu rundy
-		\item dostęp do bieżącego stanu gry z każdej funkcji (tylko do odczytu)
+		\item bieżący stan gry dostępny z każdej funkcji (tylko do odczytu)
+		\item kilka funkcji wbudowanych modyfikujących stan gry (np. {\tt capture, move})
 	\end{itemize}
 \end{frame}
 
@@ -169,8 +170,9 @@ Politechnika Warszawska}
 		\begin{column}{.50\textwidth}
 			Silnik gry -- maszyna stanów
 			\begin{itemize}
+				\item odseparowany od modułu dekodującego zasady
+				\item inicjalizowany stanem początkowym pochodzącym z modułu dekodującego zasady
 				\item dla każdego stanu generuje możliwe przejścia
-				\item odseparowany od modułu parsera języka
 				\item dobrze przetestowany
 			\end{itemize}
 		\end{column}%
@@ -231,7 +233,7 @@ Politechnika Warszawska}
 	\begin{itemize}
 		\item Język opisu gier opartych o szachownicę
 		\item Główny cel: dokładny opis gier na potrzeby zadań SI
-		\item Bardzo rozbudowany, zawiera informacje przydatne do uczenia modelów SI
+		\item Bardzo rozbudowany, wiele elementów składowych języka
 		\item Skomplikowany w pisaniu i rozumieniu
 	\end{itemize}
 \end{frame}
@@ -240,11 +242,21 @@ Politechnika Warszawska}
 	\frametitle{GDL -- Game Description Language\cite{GDL}}
 	\begin{itemize}
 		\item Język opisu gier planszowych (szeroki zakres)
-		\item Główny cel: opis jak największej liczby gier przy pomocy prostej składni
+		\item Główny cel: opis jak największej liczby gier do zadań SI
 		\item Podobny do Prologa -- predykaty głównym budulcem zasad
 		\item Bardzo elastyczny, przy tym mało skomplikowany
 		\item Brak wbudowanych konceptów gier planszowych (takich jak: plansza, gracz)
 		\item Brak wbudowanych operacji arytmetycznych
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Wnioski}
+	\begin{itemize}
+		\item Istnieją rozwiązania spełniające cele mojego projektu
+		\item Skupiają się na wykorzystaniu w zadaniach SI
+		\item Mało przyjazne dla użytkownika definiującego zasady
+		\item Wymagają doświadczonego programisty do opisu zasad
 	\end{itemize}
 \end{frame}
 
@@ -302,7 +314,7 @@ Politechnika Warszawska}
 		      \begin{itemize}
 			      \item rozwiązanie -- modyfikacja dodatku do potrzeb
 		      \end{itemize}
-		\item Ewaluacja operacji logicznych {\tt \&\&} i {\tt ||} nie jest leniwa
+		\item Ewaluacja operacji logicznych {\tt \&\&} i {\tt ||} nie jest ,,leniwa''
 		      \begin{itemize}
 			      \item niespodziewane błędy podczas interpretacji reguł
 			      \item \lstinline|isValid = destination != null && piece_at(destination) == null|
@@ -315,18 +327,19 @@ Politechnika Warszawska}
 	\begin{itemize}
 		\item Język:
 		      \begin{itemize}
+			      \item skupienie na prostocie użytkowania
 			      \item opracowanie wstępnego pliku zasad przed pracami nad silnikiem
 			      \item modyfikacja pliku w miarę odkrywania nowych problemów przy pracy nad silnikiem
 			      \item moduł dekodujący, sprowadzający do obiektów domenowych używanych w silniku
 			      \item testy plików zasad w postaci testów integracyjnych
 		      \end{itemize}
+		      \framebreak
 		\item Silnik:
 		      \begin{itemize}
 			      \item język: Go (w nim jest napisany parser HCL)
 			      \item testy jednostkowe silnika w odosobnieniu od modułu dekodującego zasady
 			      \item asynchroniczna komunikacja między obiektami za pomocą zdarzeń (łatwa implementacja cofania ruchów)
 		      \end{itemize}
-		      \framebreak
 		\item Interfejs użytkownika:
 		      \begin{itemize}
 			      \item początkowo tymczasowy interfejs terminalowy
@@ -344,6 +357,7 @@ Politechnika Warszawska}
 	\begin{itemize}
 		\item Opisane wszystkie 3 gry w plikach z zasadami
 		\item Silnik potrafiący poprawnie interpretować powyższe pliki
+		\item Tymczasowy interfejs terminalowy
 		\item Pokrycie testami jednostkowymi silnika na poziomie 56,2\%
 		\item Testy integracyjne dekoder $\leftrightarrow$ silnik
 		      \begin{itemize}
@@ -455,6 +469,7 @@ composite_function "motion_neighbours" {
 \begin{frame}
 	\frametitle{Dodatkowe zagadnienia do rozwiązania}
 	\begin{itemize}
+		\item Zwiększyć poziom pokrycia kodu testami
 		\item Zautomatyzować budowanie projektu (konteneryzacja)
 		\item Wdrożyć projekt na wybraną usługę chmurową
 		\item Dodać edytor tekstowy zasad do interfejsu w przeglądarce
@@ -469,8 +484,8 @@ composite_function "motion_neighbours" {
 
 	\begin{itemize}
 		\item Język dziedzinowy do generowania gier planszowych opartych o szachownicę
-		\item Język bazuje na HCL, skupia się na prostocie pisania i modyfikowania reguł oraz zwięzłości
-		\item Modularyzacja projektu ułatwia efektywne testowanie
+		\item Język bazuje na HCL, charakteryzuje się prostotą pisania i modyfikowania reguł oraz zwięzłością
+		\item Modularyzacja projektu ułatwia rozdzielenie obowiązków i efektywne testowanie
 	\end{itemize}
 \end{frame}
 
@@ -487,6 +502,12 @@ composite_function "motion_neighbours" {
 		\bibitem{GDL}  N. Love, T. Hinrichs, D. Haley, E. Schkufza, and M. Genesereth. ,,General Game Playing: Game Description Language Specification. Technical report, Stanford Logic Group'' (2006).
 
 		\bibitem{GGP} J. Kowalski. ,,General Game Description Languages'' (2016).
+
+		\bibitem{chess} \url{https://www.fide.com/FIDE/handbook/LawsOfChess.pdf}
+
+		\bibitem{halma} \url{https://brainking.com/en/GameRules?tp=33}
+
+		\bibitem{dobutsu-shogi} \url{https://www.pychess.org/variants/dobutsu}
 	\end{thebibliography}
 \end{frame}
 
